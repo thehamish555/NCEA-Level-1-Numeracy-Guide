@@ -12,6 +12,7 @@ DATED: July 31, 2023
 import sys
 import os
 import random
+import json
 
 
 class Numeracy:
@@ -39,18 +40,18 @@ class Numeracy:
         """
         print('This class is used to generate and calculate math equations')
 
-    def name(self, name):
+    def name(self):
         """Rename the method to a placeholder string.
 
         Called with @Numeracy.name()
         Returns a placeholder name for the class method
         """
         def decorator(function):
-            function.__name__ = name
+            function.__name__ = self
             return function
         return decorator
 
-    @name(1, 'Last Values')
+    @name('Last Values')
     def last_values(self):
         """Return all previous values.
 
@@ -65,7 +66,7 @@ class Numeracy:
                 'division': self.last_divided
                 }
 
-    @name(1, 'Generate Numbers')
+    @name('Generate Numbers')
     def generate_numbers(self, amount=1, min=-1*sys.maxsize, max=sys.maxsize):
         """Generate a list of numbers based on given arguments.
 
@@ -77,7 +78,7 @@ class Numeracy:
             self.numbers.append(random.randint(min, max))
         return self.numbers
 
-    @name(1, '+')
+    @name('+')
     def addition(self, *args):
         """Add a list of numbers together, eg ([1, 2, 3], 4) returns 10.
 
@@ -96,7 +97,7 @@ class Numeracy:
         self.last_added = total
         return self.last_added
 
-    @name(1, '-')
+    @name('-')
     def subtraction(self, a, b):
         """Subtract one number from another, eg (10, 3) returns 7.
 
@@ -106,7 +107,7 @@ class Numeracy:
         self.last_subtracted = a - b
         return self.last_subtracted
 
-    @name(1, '×')
+    @name('×')
     def multiplication(self, *args):
         """Multiply a list of numbers together, eg ([2, 3], 6) returns 36.
 
@@ -126,7 +127,7 @@ class Numeracy:
         self.last_multiplied = total
         return self.last_multiplied
 
-    @name(1, '÷')
+    @name('÷')
     def division(self, a, b):
         """Divide one number by another, eg (6, 3) returns 2.
 
@@ -157,20 +158,96 @@ if len(sys.argv) == 2 and sys.argv[1] == '--help':
                 print(f'''        \033[1m- Method {method}\033[0m
             No information provided''')
 elif __name__ == '__main__':
-    """
-    Will only run this code if run by main.py, that way
+    """Will only run this code if run by main.py, that way
     people can use the class and functions without running the code for this
     program.
     """
+    def generate_question_and_answer():
+        """Create a question and an answer.
 
+        Called with generate_question_and_answer()
+        Returns are question and answer
+        """
+        global cont
+
+        def dict_walk(d):
+            global cont
+            if cont is True:
+                for k, v in d.items():
+                    r = random.choice(list(d.keys()))
+                    question.append(r)
+                    if v == '#end':
+                        cont = False
+                        break
+                    else:
+                        dict_walk(d[r])
+
+        cont = True
+        question = []
+        num_of_names = 0
+        num_of_nums = 0
+        names = []
+
+        dict_walk(data['Words'])
+        for word in question:
+            if word.strip().startswith('#name'):
+                temp = int(word[-1:])
+                if temp > num_of_names:
+                    num_of_names = temp
+            elif word.strip().startswith('#num'):
+                temp = int(word[-1:])
+                if temp > num_of_nums:
+                    num_of_nums = temp
+        for i in range(num_of_names):
+            while True:
+                temp = random.choice(data['Names'])
+                if not names.__contains__(temp):
+                    names.append(temp)
+                    break
+            question = ''.join(question).replace(f'#name{i+1}', temp)
+        num_range = question.split(';')[1]
+        numbers = numeracy.generate_numbers(num_of_nums,
+                                            float(num_range.split()[0]),
+                                            float(num_range.split()[1]))
+        for i in range(num_of_nums):
+            question = ''.join(question).replace(f'#num{i+1}', str(numbers[i]))
+        question = question.split('@')
+        equation = question.pop(1)
+        question = question.pop(0)
+        if len(equation.split()) > 1:
+            numbers = []
+            functions = []
+            for word in equation.split():
+                try:
+                    int(word)
+                    numbers.append(float(word))
+                except ValueError:
+                    functions.append(word)
+                if len(functions) > 0 and len(numbers) > 1:
+                    try:
+                        total = getattr(numeracy, functions[0])(numbers)
+                    except TypeError:
+                        total = getattr(numeracy, functions[0])(numbers[0],
+                                                                numbers[1])
+                    numbers = [total]
+                    functions = []
+            answer = total
+        else:
+            function = equation.strip()
+            try:
+                answer = getattr(numeracy, function)(numbers)
+            except TypeError:
+                answer = getattr(numeracy, function)(numbers[0],
+                                                     numbers[1])
+
+        return question, answer
+
+    numeracy = Numeracy()
+    data = json.load(open('./data/keywords.json', 'r'))
     while True:
         try:
-            numeracy = Numeracy()
-            numbers = numeracy.generate_numbers(2, -10, 10)
-            function = random.choice((numeracy.addition, numeracy.subtraction,
-                                      numeracy.multiplication,
-                                      numeracy.division))
-            answer = round(float(function(numbers[0], numbers[1])), 2)
+            question, answer = generate_question_and_answer()
+            answer = float(answer)
             break
         except ZeroDivisionError:
             pass
@@ -179,9 +256,9 @@ elif __name__ == '__main__':
             os.system('clear')
         else:
             os.system('cls')
-        print(f'Calculate What {numbers[0]}{function.__name__}{numbers[1]} Is')
+        print(question)
         try:
-            user_answer = round(float(input('= ')), 2)
+            user_answer = round(float(input('-> ')), 2)
             break
         except ValueError:
             pass
@@ -189,4 +266,3 @@ elif __name__ == '__main__':
         print('True')
     else:
         print('False')
-        
