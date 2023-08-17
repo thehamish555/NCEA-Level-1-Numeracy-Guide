@@ -4583,7 +4583,7 @@
         "Tedi",
         "Tedra",
         "Teena",
-        "TEirtza",
+        "Tirtza",
         "Teodora",
         "Tera",
         "Teresa",
@@ -4963,7 +4963,7 @@
                                                         " to": {
                                                             " split": {
                                                                 " the": {
-                                                                    " oragnes": {
+                                                                    " oranges": {
                                                                         " with": {
                                                                             " their": {
                                                                                  " friend": {
@@ -4976,7 +4976,7 @@
                                                                                                             " they": {
                                                                                                                 " each": {
                                                                                                                     " get": {
-                                                                                                                        "? @ #num1 addition #num2 division 2 @ ; 2 25 ;": "#end"
+                                                                                                                        "? @ #num1 addition #num2 division 2 @ Take #num1 and add #num2 (#num1+#num2) and divide by 2 (#0÷2) to get answer @ ; 2 25 ; ' answer '": "#end"
                                                                                                                     }
                                                                                                                 }
                                                                                                             }
@@ -5035,7 +5035,7 @@
                                                                                                                             " the": {
                                                                                                                                 " perimeter": {
                                                                                                                                     " cost": {
-                                                                                                                                        "? @ #num1 addition #num2 multiplication 2 multiplication #num3 @ ; 5 25 ;": "#end"
+                                                                                                                                        "? @ #num1 addition #num2 multiplication 2 multiplication #num3 @ Take #num1 and add #num2 (#num1+#num2) and multiply by 2 (#0×2) and multiply by $#num3 (#1×$#num3) to get $answer @ ; 5 25 ; ' $answer '": "#end"
                                                                                                                                     }
                                                                                                                                 }
                                                                                                                             }
@@ -5061,7 +5061,7 @@
 																																" the": {
 																																	" foundation": {
 																																		" cost": {
-																																			"? @ multiplication @ ; 5 25 ;": "#end"
+																																			"? @ multiplication @ Multiply all the numbers together (#num1×#num2×$#num3) to get $answer @ ; 5 25 ; ' $answer '": "#end"
 																																		}
 																																	}
 																																}

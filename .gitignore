@@ -1,2 +1,6 @@
 # Ignore gitpush.sh
 gitpush.sh
+
+# Ignore extra python files
+test.py
+questionloader.py

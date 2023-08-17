@@ -13,6 +13,9 @@ import sys
 import os
 import random
 import json
+import PyQt6.QtWidgets as PyQt
+import PyQt6.QtGui as PyQtGui
+import PyQt6.QtCore as PyQtCore
 
 
 class Numeracy:
@@ -145,7 +148,7 @@ if len(sys.argv) == 2 and sys.argv[1] == '--help':
     print('\033[1mContained Classes and Functions\033[0m')
     try:
         print(f'''    \033[1mClass Numeracy:\033[0m
-        {Numeracy.__doc__.replace(n, n + "    ")}''')
+        {Numeracy.__doc__.replace(n, n + '    ')}''')
     except AttributeError:
         print('''    \033[1mClass Numeracy:\033[0m
         No information provided''')
@@ -153,7 +156,7 @@ if len(sys.argv) == 2 and sys.argv[1] == '--help':
         if not method.startswith('__'):
             try:
                 print(f'''        \033[1m- Method {method}\033[0m
-            {getattr(Numeracy, method).__doc__.replace(n, n + "    ")}''')
+            {getattr(Numeracy, method).__doc__.replace(n, n + '    ')}''')
             except AttributeError:
                 print(f'''        \033[1m- Method {method}\033[0m
             No information provided''')
@@ -162,6 +165,316 @@ elif __name__ == '__main__':
     people can use the class and functions without running the code for this
     program.
     """
+    class PageWindow(PyQt.QMainWindow):
+        gotoSignal = PyQtCore.pyqtSignal(str)
+
+        def goto(self, name):
+            self.gotoSignal.emit(name)
+
+    class MainWindow(PageWindow):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+            self.setWindowTitle('NCEA Level 1 Numeracy Guide | Home')
+
+        def initUI(self):
+            self.UiComponets()
+
+        def UiComponets(self):
+            self.quizButton = PyQt.QPushButton("Start Quiz", self)
+            self.quizButton.setGeometry(PyQtCore.QRect(285, 265, 100, 30))
+            self.quizButton.setStyleSheet('''
+                                            QPushButton {
+                                                background-color: #8DCCD2;
+                                                border-radius: 7px;
+                                                border: 1px solid #232B2D;
+                                                color: #232B2D;
+                                            }
+                                            QPushButton:hover {
+                                                background-color: #005A69;
+                                            }
+                                            QPushButton:pressed {
+                                                background-color: #005A69;
+                                            }
+                                            ''')
+            self.quizButton.clicked.connect(
+                self.make_handleButton('quizButton')
+            )
+
+        def make_handleButton(self, button):
+            def handleButton():
+                if button == 'quizButton':
+                    self.goto('quiz')
+            return handleButton
+
+    class QuizWindow(PageWindow):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+
+        def initUI(self):
+            self.setWindowTitle('NCEA Level 1 Numeracy Guide | Quiz')
+            self.UiComponents()
+
+        def make_handleButton(self, button):
+            def handleButton():
+                if button == 'menuButton':
+                    self.goto('menu')
+                if button == 'nextButton':
+                    self.get_question()
+                    self.questionLabel.setText(self.question)
+                    self.workingButton.hide()
+                    self.nextButton.hide()
+                    self.answerLabel.hide()
+                    self.lineEdit.setReadOnly(False)
+                    self.lineEdit.clear()
+                elif button == 'workingButton':
+                    self.messageBox = PyQt.QMessageBox()
+                    self.messageBox.setText(self.working)
+                    self.messageBox.setStyleSheet('''
+                                                  QMessageBox {
+                                                      background-color:
+                                                          #FFFFFF;
+                                                  }
+                                                  QMessageBox QLabel {
+                                                      background-color:
+                                                          #FFFFFF;
+                                                      border: 1px solid
+                                                          #232B2D;
+                                                      border-radius: 7px;
+                                                      margin-right: 20px;
+                                                      color: #232B2D;
+                                                      padding-left: 5px;
+                                                      padding-right: 5px;
+                                                      padding-top: 5px;
+                                                      padding-bottom: 5px;
+                                                  }
+                                                  QMessageBox QPushButton {
+                                                      background-color:
+                                                          #8DCCD2;
+                                                      border-radius: 7px;
+                                                      border: 1px solid
+                                                          #232B2D;
+                                                      margin-right: 20px;
+                                                      color: #232B2D;
+                                                  }
+                                                  QMessageBox QPushButton:
+                                                      hover {
+                                                          background-color:
+                                                              #005A69;
+                                                  }
+                                                  QMessageBox QPushButton:
+                                                      pressed {
+                                                          background-color:
+                                                              #005A69;
+                                                  }
+                                                  ''')
+                    self.setWindowTitle(
+                                        'NCEA Level 1 Numeracy Guide | Working'
+                                        )
+                    self.messageBox.exec()
+                elif button == 'answerButton':
+                    self.lineEdit.setReadOnly(True)
+                    self.workingButton.show()
+                    self.nextButton.show()
+                    self.answerLabel.show()
+                    try:
+                        if float(self.lineEdit.text()) == self.float_answer:
+                            self.answerLabel.setText('✓')
+                            self.answerLabel.setStyleSheet('''
+                                                           color: #21CC62;
+                                                           background-color:
+                                                               #FFFFFF;
+                                                           font-size: 18pt;
+                                                           ''')
+                        else:
+                            self.answerLabel.setText('x')
+                            self.answerLabel.setStyleSheet('''
+                                                           color: #CC2A21;
+                                                           background-color:
+                                                               #FFFFFF;
+                                                           font-size: 18pt;
+                                                           ''')
+                    except ValueError:
+                        if self.lineEdit.text().rstrip('0').rstrip('.') == \
+                          self.string_answer.rstrip('0').rstrip('.'):
+                            self.answerLabel.setText('✓')
+                            self.answerLabel.setStyleSheet('''
+                                                           color: #21CC62;
+                                                           background-color:
+                                                               #FFFFFF;
+                                                           font-size: 18pt;
+                                                           ''')
+                        else:
+                            self.answerLabel.setText('x')
+                            self.answerLabel.setStyleSheet('''
+                                                           color: #CC2A21;
+                                                           background-color:
+                                                               #FFFFFF;
+                                                           font-size: 18pt;
+                                                           ''')
+            return handleButton
+
+        def get_question(self):
+            while True:
+                try:
+                    self.question, self.string_answer, self.float_answer, \
+                        self.working = generate_question_and_answer()
+                    break
+                except ZeroDivisionError:
+                    pass
+
+        def UiComponents(self):
+            self.get_question()
+            self.questionLabel = PyQt.QLabel(self.question, self)
+            self.questionLabel.setGeometry(PyQtCore.QRect(15, 5, 470, 200))
+            self.questionLabel.setStyleSheet('''
+                                         background-color: #FFFFFF;
+                                         border: 1px solid #232B2D;
+                                         border-radius: 15px;
+                                         padding-left: 5px;
+                                         padding-right: 5px;
+                                         color: #232B2D;
+                                         ''')
+            self.questionLabel.setAlignment(PyQtCore.Qt.AlignmentFlag
+                                            .AlignHCenter
+                                            | PyQtCore.Qt.AlignmentFlag.
+                                            AlignTop)
+            self.questionLabel.setWordWrap(True)
+
+            self.lineEdit = PyQt.QLineEdit(self, clearButtonEnabled=True,
+                                           placeholderText='Enter Answer...',)
+            self.lineEdit.setGeometry(PyQtCore.QRect(20, 210, 350, 30))
+            self.lineEdit.setStyleSheet('''
+                                         background-color: #FFFFFF;
+                                         border: 1px solid #232B2D;
+                                         border-radius: 7px;
+                                         padding-left: 2px;
+                                         color: #232B2D;
+                                         ''')
+
+            self.answerButton = PyQt.QPushButton('Check Answer', self)
+            self.answerButton.setGeometry(PyQtCore.QRect(380, 210, 100, 30))
+            self.answerButton.setStyleSheet('''
+                                            QPushButton {
+                                                background-color: #8DCCD2;
+                                                border-radius: 7px;
+                                                border: 1px solid #232B2D;
+                                                color: #232B2D;
+                                            }
+                                            QPushButton:hover {
+                                                background-color: #005A69;
+                                            }
+                                            QPushButton:pressed {
+                                                background-color: #005A69;
+                                            }
+                                            ''')
+            self.answerButton.clicked.connect(self.make_handleButton(
+                                              'answerButton'))
+
+            self.answerLabel = PyQt.QLabel('', self)
+            self.answerLabel.setGeometry(PyQtCore.QRect(348, 213, 20, 20))
+            self.answerLabel.hide()
+
+            self.menuButton = PyQt.QPushButton("Main Menu", self)
+            self.menuButton.setGeometry(PyQtCore.QRect(5, 265, 100, 30))
+            self.menuButton.setStyleSheet('''
+                                          QPushButton {
+                                              background-color: #8DCCD2;
+                                              border-radius: 7px;
+                                              border: 1px solid #232B2D;
+                                              color: #232B2D;
+                                          }
+                                          QPushButton:hover {
+                                              background-color: #005A69;
+                                          }
+                                          QPushButton:pressed {
+                                              background-color: #005A69;
+                                          }
+                                          ''')
+            self.menuButton.clicked.connect(self.make_handleButton(
+                                            'menuButton'))
+
+            self.workingButton = PyQt.QPushButton('Show Working', self)
+            self.workingButton.setGeometry(PyQtCore.QRect(285, 265, 100, 30))
+            self.workingButton.setStyleSheet('''
+                                             QPushButton {
+                                                 background-color:
+                                                     #8DCCD2;
+                                                 border-radius: 7px;
+                                                 border: 1px solid
+                                                     #232B2D;
+                                                 color: #232B2D;
+                                            }
+                                            QPushButton:hover {
+                                                background-color:
+                                                    #005A69;
+                                            }
+                                            QPushButton:pressed {
+                                                background-color:
+                                                    #005A69;
+                                            }
+                                            ''')
+            self.workingButton.hide()
+            self.workingButton.clicked.connect(self.make_handleButton(
+                                               'workingButton'))
+
+            self.nextButton = PyQt.QPushButton('Next Question', self)
+            self.nextButton.setGeometry(PyQtCore.QRect(395, 265, 100, 30))
+            self.nextButton.setStyleSheet('''
+                                          QPushButton {
+                                              background-color:
+                                                  #8DCCD2;
+                                              border-radius: 7px;
+                                              border: 1px solid
+                                                  #232B2D;
+                                              color: #232B2D;
+                                          }
+                                          QPushButton:hover {
+                                              background-color:
+                                                  #005A69;
+                                          }
+                                          QPushButton:pressed {
+                                              background-color:
+                                                  #005A69;
+                                          }
+                                          ''')
+            self.nextButton.hide()
+            self.nextButton.clicked.connect(self.make_handleButton(
+                                               'nextButton'))
+
+    class Window(PyQt.QMainWindow):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setGeometry(100, 100, 500, 300)
+            self.setFixedSize(500, 300)
+            self.setStyleSheet('''
+                              background-color: #FFFFFF;
+                              ''')
+
+            self.stacked_widget = PyQt.QStackedWidget()
+            self.setCentralWidget(self.stacked_widget)
+
+            self.m_pages = {}
+
+            self.register(MainWindow(), 'menu')
+            self.register(QuizWindow(), 'quiz')
+
+            self.goto('menu')
+
+        def register(self, widget, name):
+            self.m_pages[name] = widget
+            self.stacked_widget.addWidget(widget)
+            if isinstance(widget, PageWindow):
+                widget.gotoSignal.connect(self.goto)
+
+        @PyQtCore.pyqtSlot(str)
+        def goto(self, name):
+            if name in self.m_pages:
+                widget = self.m_pages[name]
+                self.stacked_widget.setCurrentWidget(widget)
+                self.setWindowTitle(widget.windowTitle())
+
     def generate_question_and_answer():
         """Create a question and an answer.
 
@@ -211,9 +524,12 @@ elif __name__ == '__main__':
                                             float(num_range.split()[1]))
         for i in range(num_of_nums):
             question = ''.join(question).replace(f'#num{i+1}', str(numbers[i]))
+        answer_format = question.split("'")[1]
         question = question.split('@')
+        working = question.pop(2)
         equation = question.pop(1)
         question = question.pop(0)
+        equation_storage = []
         if len(equation.split()) > 1:
             numbers = []
             functions = []
@@ -229,6 +545,7 @@ elif __name__ == '__main__':
                     except TypeError:
                         total = getattr(numeracy, functions[0])(numbers[0],
                                                                 numbers[1])
+                    equation_storage.append(total)
                     numbers = [total]
                     functions = []
             answer = total
@@ -240,29 +557,30 @@ elif __name__ == '__main__':
                 answer = getattr(numeracy, function)(numbers[0],
                                                      numbers[1])
 
-        return question, answer
+        string_answer = answer_format.replace('answer', str(answer)
+                                              .rstrip('0').rstrip('.')).strip()
+        for i in range(len(equation_storage)):
+            working = working.replace(f'#{i}', str(equation_storage[i])
+                                      .rstrip('0').rstrip('.'))
+
+        working = working.replace('answer', str(answer).rstrip('0')
+                                  .rstrip('.')).strip()
+        float_answer = float(answer)
+
+        return question, string_answer, float_answer, working
+
+    if os.name == 'posix':
+        os.system('clear')
+    else:
+        os.system('cls')
+    os.environ['QT_LOGGING_RULES'] = 'qt.qpa.*=false'
 
     numeracy = Numeracy()
     data = json.load(open('./data/keywords.json', 'r'))
-    while True:
-        try:
-            question, answer = generate_question_and_answer()
-            answer = float(answer)
-            break
-        except ZeroDivisionError:
-            pass
-    while True:
-        if os.name == 'posix':
-            os.system('clear')
-        else:
-            os.system('cls')
-        print(question)
-        try:
-            user_answer = round(float(input('-> ')), 2)
-            break
-        except ValueError:
-            pass
-    if user_answer == answer:
-        print('True')
-    else:
-        print('False')
+
+    app = PyQt.QApplication(sys.argv)
+
+    window = Window()
+    window.show()
+
+    sys.exit(app.exec())
