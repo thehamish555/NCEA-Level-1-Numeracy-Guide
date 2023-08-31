@@ -2,5 +2,8 @@
 gitpush.sh
 
 # Ignore extra python files
-test.py
 questionloader.py
+
+# Ignore folders
+__pycachce__/
+test/

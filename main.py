@@ -4,18 +4,28 @@ The following program was made for a DT Assessment, It should
 not be taken seriously and/or used to learn Level 1 Numeracy. Use at your own
 risk, but you have been warned.
 
+When run as __main__, this program generates questions and calculates the
+answers. It asks the user the question through a GUI to which the user can
+answer. Once the user submits their answer it shows the user if they were
+right or wrong. It can also show you how to solve the question after the user
+checks their answer.
+
 DEV: Hamish Lester
-VERSION: 0.2-Alpha
-DATED: July 31, 2023
+VERSION: 0.5-Alpha
+DATED: August 18, 2023
 """
 
 import sys
 import os
 import random
 import json
+import re
 import PyQt6.QtWidgets as PyQt
 import PyQt6.QtGui as PyQtGui
 import PyQt6.QtCore as PyQtCore
+from threading import Thread
+from deep_translator import GoogleTranslator
+import time
 
 
 class Numeracy:
@@ -175,36 +185,35 @@ elif __name__ == '__main__':
         def __init__(self):
             super().__init__()
             self.initUI()
-            self.setWindowTitle('NCEA Level 1 Numeracy Guide | Home')
 
         def initUI(self):
             self.UiComponets()
 
         def UiComponets(self):
-            self.quizButton = PyQt.QPushButton("Start Quiz", self)
-            self.quizButton.setGeometry(PyQtCore.QRect(285, 265, 100, 30))
-            self.quizButton.setStyleSheet('''
-                                            QPushButton {
-                                                background-color: #8DCCD2;
-                                                border-radius: 7px;
-                                                border: 1px solid #232B2D;
-                                                color: #232B2D;
-                                            }
-                                            QPushButton:hover {
-                                                background-color: #005A69;
-                                            }
-                                            QPushButton:pressed {
-                                                background-color: #005A69;
-                                            }
-                                            ''')
+            image = PyQtGui.QPixmap('./data/media/NZQA_Logo.png')\
+                .scaledToHeight(150).scaledToHeight(150)
+            self.imageLabel = PyQt.QLabel(self)
+            self.imageLabel.setGeometry(PyQtCore.QRect(100, 50, image.width(),
+                                                       image.height()))
+            self.imageLabel.setPixmap(image)
+            self.imageLabel.setObjectName('imageLabel')
+
+            self.quizButton = PyQt.QPushButton(self)
+            self.quizButton.setGeometry(PyQtCore.QRect(260, 225, 100, 30))
             self.quizButton.clicked.connect(
-                self.make_handleButton('quizButton')
-            )
+                self.make_handleButton('quizButton'))
+
+            self.settingsButton = PyQt.QPushButton(self)
+            self.settingsButton.setGeometry(PyQtCore.QRect(140, 225, 100, 30))
+            self.settingsButton.clicked.connect(
+                self.make_handleButton('settingsButton'))
 
         def make_handleButton(self, button):
             def handleButton():
                 if button == 'quizButton':
                     self.goto('quiz')
+                if button == 'settingsButton':
+                    self.goto('settings')
             return handleButton
 
     class QuizWindow(PageWindow):
@@ -213,7 +222,6 @@ elif __name__ == '__main__':
             self.initUI()
 
         def initUI(self):
-            self.setWindowTitle('NCEA Level 1 Numeracy Guide | Quiz')
             self.UiComponents()
 
         def make_handleButton(self, button):
@@ -221,244 +229,250 @@ elif __name__ == '__main__':
                 if button == 'menuButton':
                     self.goto('menu')
                 if button == 'nextButton':
-                    self.get_question()
+                    self.question = self.nextQuestion
+                    self.string_answers = self.nextString_ansers
+                    self.float_answer = self.nextFloat_answer
+                    self.working = self.nextWorking
+                    Thread(target=self.get_next_question, daemon=True).start()
                     self.questionLabel.setText(self.question)
                     self.workingButton.hide()
                     self.nextButton.hide()
                     self.answerLabel.hide()
                     self.lineEdit.setReadOnly(False)
                     self.lineEdit.clear()
+                    self.lineEdit.setFocus()
+                    self.answerButton.setEnabled(True)
+                    self.answerButton.setStyleSheet('''
+                                                    QPushButton {
+                                                        background-color:
+                                                            #8DCCD2;
+                                                    }
+                                                    QPushButton:hover {
+                                                        background-color:
+                                                            #005A69;
+                                                    }
+                                                    ''')
                 elif button == 'workingButton':
                     self.messageBox = PyQt.QMessageBox()
                     self.messageBox.setText(self.working)
-                    self.messageBox.setStyleSheet('''
-                                                  QMessageBox {
-                                                      background-color:
-                                                          #FFFFFF;
-                                                  }
-                                                  QMessageBox QLabel {
-                                                      background-color:
-                                                          #FFFFFF;
-                                                      border: 1px solid
-                                                          #232B2D;
-                                                      border-radius: 7px;
-                                                      margin-right: 20px;
-                                                      color: #232B2D;
-                                                      padding-left: 5px;
-                                                      padding-right: 5px;
-                                                      padding-top: 5px;
-                                                      padding-bottom: 5px;
-                                                  }
-                                                  QMessageBox QPushButton {
-                                                      background-color:
-                                                          #8DCCD2;
-                                                      border-radius: 7px;
-                                                      border: 1px solid
-                                                          #232B2D;
-                                                      margin-right: 20px;
-                                                      color: #232B2D;
-                                                  }
-                                                  QMessageBox QPushButton:
-                                                      hover {
-                                                          background-color:
-                                                              #005A69;
-                                                  }
-                                                  QMessageBox QPushButton:
-                                                      pressed {
-                                                          background-color:
-                                                              #005A69;
-                                                  }
-                                                  ''')
+                    with open('./data/nzqa.css', 'r') as fh:
+                        self.messageBox.setStyleSheet(fh.read())
                     self.setWindowTitle(
                                         'NCEA Level 1 Numeracy Guide | Working'
                                         )
                     self.messageBox.exec()
                 elif button == 'answerButton':
                     self.lineEdit.setReadOnly(True)
+                    self.answerButton.setEnabled(False)
+                    self.answerButton.setStyleSheet('''
+                                                    QPushButton {
+                                                        background-color:
+                                                            #CADCDE;
+                                                    }
+                                                    QPushButton:hover {
+                                                        background-color:
+                                                            #005A69;
+                                                    }
+                                                    ''')
                     self.workingButton.show()
                     self.nextButton.show()
                     self.answerLabel.show()
+                    self.user_answer = self.lineEdit.text().replace(',', '.')
                     try:
-                        if float(self.lineEdit.text()) == self.float_answer:
+                        if float(self.user_answer) == self.float_answer:
                             self.answerLabel.setText('✓')
                             self.answerLabel.setStyleSheet('''
                                                            color: #21CC62;
-                                                           background-color:
-                                                               #FFFFFF;
                                                            font-size: 18pt;
                                                            ''')
                         else:
                             self.answerLabel.setText('x')
                             self.answerLabel.setStyleSheet('''
                                                            color: #CC2A21;
-                                                           background-color:
-                                                               #FFFFFF;
                                                            font-size: 18pt;
                                                            ''')
                     except ValueError:
-                        if self.lineEdit.text().rstrip('0').rstrip('.') == \
-                          self.string_answer.rstrip('0').rstrip('.'):
-                            self.answerLabel.setText('✓')
-                            self.answerLabel.setStyleSheet('''
-                                                           color: #21CC62;
-                                                           background-color:
-                                                               #FFFFFF;
-                                                           font-size: 18pt;
-                                                           ''')
-                        else:
-                            self.answerLabel.setText('x')
-                            self.answerLabel.setStyleSheet('''
-                                                           color: #CC2A21;
-                                                           background-color:
-                                                               #FFFFFF;
-                                                           font-size: 18pt;
-                                                           ''')
+                        string = self.user_answer.lower().strip().split()
+                        for word in string:
+                            try:
+                                float(word)
+                                string[string.index(word)] = word.strip('0')\
+                                                                 .rstrip('.')
+                            except ValueError:
+                                pass
+                        string = ' '.join(string)
+                        for string_answer in self.string_answers:
+                            if string.strip('0').rstrip('.') ==\
+                              string_answer.strip('0').rstrip('.'):
+                                self.answerLabel.setText('✓')
+                                self.answerLabel.setStyleSheet('''
+                                                               color: #21CC62;
+                                                               font-size: 18pt;
+                                                               ''')
+                                return handleButton
+                            else:
+                                self.answerLabel.setText('x')
+                                self.answerLabel.setStyleSheet('''
+                                                               color: #CC2A21;
+                                                               font-size: 18pt;
+                                                               ''')
             return handleButton
 
-        def get_question(self):
+        def loop_next_button(self):
+            try:
+                while True:
+                    time.sleep(0.5)
+                    if self.nextQuestion != self.question:
+                        self.nextButton.setEnabled(True)
+                        self.nextButton.setStyleSheet('''
+                                                      QPushButton {
+                                                          background-color:
+                                                              #8DCCD2;
+                                                      }
+                                                      QPushButton:hover {
+                                                          background-color:
+                                                              #005A69;
+                                                      }
+                                                      ''')
+                    else:
+                        self.nextButton.setEnabled(False)
+                        self.nextButton.setStyleSheet('''
+                                                      QPushButton {
+                                                          background-color:
+                                                              #CADCDE;
+                                                      }
+                                                      QPushButton:hover {
+                                                          background-color:
+                                                              #005A69;
+                                                      }
+                                                      ''')
+            except RuntimeError:
+                pass
+
+        def get_next_question(self):
             while True:
                 try:
-                    self.question, self.string_answer, self.float_answer, \
-                        self.working = generate_question_and_answer()
+                    self.nextQuestion, self.nextString_ansers, \
+                        self.nextFloat_answer, self.nextWorking = \
+                        generate_question_and_answer()
                     break
                 except ZeroDivisionError:
                     pass
 
         def UiComponents(self):
-            self.get_question()
+            while True:
+                try:
+                    self.question, self.string_answers, self.float_answer, \
+                        self.working = generate_question_and_answer()
+                    break
+                except ZeroDivisionError:
+                    pass
+            # Thread(target=self.get_next_question, daemon=True).start()
+            self.get_next_question()
             self.questionLabel = PyQt.QLabel(self.question, self)
             self.questionLabel.setGeometry(PyQtCore.QRect(15, 5, 470, 200))
-            self.questionLabel.setStyleSheet('''
-                                         background-color: #FFFFFF;
-                                         border: 1px solid #232B2D;
-                                         border-radius: 15px;
-                                         padding-left: 5px;
-                                         padding-right: 5px;
-                                         color: #232B2D;
-                                         ''')
+            self.questionLabel.setStyleSheet('border-radius: 15px;')
             self.questionLabel.setAlignment(PyQtCore.Qt.AlignmentFlag
                                             .AlignHCenter
                                             | PyQtCore.Qt.AlignmentFlag.
                                             AlignTop)
             self.questionLabel.setWordWrap(True)
 
-            self.lineEdit = PyQt.QLineEdit(self, clearButtonEnabled=True,
-                                           placeholderText='Enter Answer...',)
-            self.lineEdit.setGeometry(PyQtCore.QRect(20, 210, 350, 30))
-            self.lineEdit.setStyleSheet('''
-                                         background-color: #FFFFFF;
-                                         border: 1px solid #232B2D;
-                                         border-radius: 7px;
-                                         padding-left: 2px;
-                                         color: #232B2D;
-                                         ''')
-
-            self.answerButton = PyQt.QPushButton('Check Answer', self)
+            self.answerButton = PyQt.QPushButton(self)
             self.answerButton.setGeometry(PyQtCore.QRect(380, 210, 100, 30))
-            self.answerButton.setStyleSheet('''
-                                            QPushButton {
-                                                background-color: #8DCCD2;
-                                                border-radius: 7px;
-                                                border: 1px solid #232B2D;
-                                                color: #232B2D;
-                                            }
-                                            QPushButton:hover {
-                                                background-color: #005A69;
-                                            }
-                                            QPushButton:pressed {
-                                                background-color: #005A69;
-                                            }
-                                            ''')
             self.answerButton.clicked.connect(self.make_handleButton(
                                               'answerButton'))
 
+            self.lineEdit = PyQt.QLineEdit(self, clearButtonEnabled=True)
+            self.lineEdit.setGeometry(PyQtCore.QRect(20, 210, 350, 30))
+            self.lineEdit.returnPressed.connect(self.answerButton.click)
+            self.lineEdit.setFocus()
+
             self.answerLabel = PyQt.QLabel('', self)
             self.answerLabel.setGeometry(PyQtCore.QRect(348, 213, 20, 20))
+            self.answerLabel.setObjectName('answerLabel')
             self.answerLabel.hide()
 
-            self.menuButton = PyQt.QPushButton("Main Menu", self)
+            self.menuButton = PyQt.QPushButton(self)
             self.menuButton.setGeometry(PyQtCore.QRect(5, 265, 100, 30))
-            self.menuButton.setStyleSheet('''
-                                          QPushButton {
-                                              background-color: #8DCCD2;
-                                              border-radius: 7px;
-                                              border: 1px solid #232B2D;
-                                              color: #232B2D;
-                                          }
-                                          QPushButton:hover {
-                                              background-color: #005A69;
-                                          }
-                                          QPushButton:pressed {
-                                              background-color: #005A69;
-                                          }
-                                          ''')
             self.menuButton.clicked.connect(self.make_handleButton(
                                             'menuButton'))
 
-            self.workingButton = PyQt.QPushButton('Show Working', self)
+            self.workingButton = PyQt.QPushButton(self)
             self.workingButton.setGeometry(PyQtCore.QRect(285, 265, 100, 30))
-            self.workingButton.setStyleSheet('''
-                                             QPushButton {
-                                                 background-color:
-                                                     #8DCCD2;
-                                                 border-radius: 7px;
-                                                 border: 1px solid
-                                                     #232B2D;
-                                                 color: #232B2D;
-                                            }
-                                            QPushButton:hover {
-                                                background-color:
-                                                    #005A69;
-                                            }
-                                            QPushButton:pressed {
-                                                background-color:
-                                                    #005A69;
-                                            }
-                                            ''')
-            self.workingButton.hide()
             self.workingButton.clicked.connect(self.make_handleButton(
                                                'workingButton'))
+            self.workingButton.hide()
 
-            self.nextButton = PyQt.QPushButton('Next Question', self)
+            self.nextButton = PyQt.QPushButton(self)
             self.nextButton.setGeometry(PyQtCore.QRect(395, 265, 100, 30))
-            self.nextButton.setStyleSheet('''
-                                          QPushButton {
-                                              background-color:
-                                                  #8DCCD2;
-                                              border-radius: 7px;
-                                              border: 1px solid
-                                                  #232B2D;
-                                              color: #232B2D;
-                                          }
-                                          QPushButton:hover {
-                                              background-color:
-                                                  #005A69;
-                                          }
-                                          QPushButton:pressed {
-                                              background-color:
-                                                  #005A69;
-                                          }
-                                          ''')
-            self.nextButton.hide()
             self.nextButton.clicked.connect(self.make_handleButton(
                                                'nextButton'))
+            self.nextButton.hide()
+
+            Thread(target=self.loop_next_button, daemon=True).start()
+
+    class SettingsWindow(PageWindow):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+
+        def initUI(self):
+            self.UiComponets()
+
+        def UiComponets(self):
+            self.menuButton = PyQt.QPushButton(self)
+            self.menuButton.setGeometry(PyQtCore.QRect(5, 265, 100, 30))
+            self.menuButton.clicked.connect(self.make_handleButton(
+                                            'menuButton'))
+
+            self.languageLabel = PyQt.QLabel(self)
+            self.languageLabel.setGeometry(PyQtCore.QRect(5, 5, 150, 30))
+            self.languageLabel.setStyleSheet('''
+                                             border: 0px;
+                                             font-size: 11pt;
+                                             padding-left: 0px;
+                                             ''')
+
+            self.languageBox = PyQt.QComboBox(self)
+            self.languageBox.setGeometry(PyQtCore.QRect(5, 35, 150, 30))
+            options = ([('English', ''), ('Māori', 'data/languages/mi')])
+            for i, (text, lang) in enumerate(options):
+                self.languageBox.addItem(text)
+                self.languageBox.setItemData(i, lang)
+                if data['Data']['language'] == lang:
+                    self.languageBox.setCurrentIndex(i)
+            self.languageBox.currentIndexChanged.connect(
+                self.make_handleButton('languageBox'))
+
+        def make_handleButton(self, button):
+            def handleButton():
+                if button == 'menuButton':
+                    self.goto('menu')
+                elif button == 'languageBox':
+                    language = self.languageBox.currentData()
+                    data['Data']['language'] = language
+                    json.dump(data, open('./data/data.json', 'w'), indent=4)
+                    PyQt.QApplication.instance().removeTranslator(translator)
+                translate()
+            return handleButton
 
     class Window(PyQt.QMainWindow):
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setGeometry(100, 100, 500, 300)
             self.setFixedSize(500, 300)
-            self.setStyleSheet('''
-                              background-color: #FFFFFF;
-                              ''')
 
             self.stacked_widget = PyQt.QStackedWidget()
             self.setCentralWidget(self.stacked_widget)
 
             self.m_pages = {}
-
-            self.register(MainWindow(), 'menu')
-            self.register(QuizWindow(), 'quiz')
+            self.MainWindow = MainWindow()
+            self.QuizWindow = QuizWindow()
+            self.SettingsWindow = SettingsWindow()
+            self.register(self.MainWindow, 'menu')
+            self.register(self.QuizWindow, 'quiz')
+            self.register(self.SettingsWindow, 'settings')
 
             self.goto('menu')
 
@@ -481,34 +495,22 @@ elif __name__ == '__main__':
         Called with generate_question_and_answer()
         Returns are question and answer
         """
-        global cont
-
-        def dict_walk(d):
-            global cont
-            if cont is True:
-                for k, v in d.items():
-                    r = random.choice(list(d.keys()))
-                    question.append(r)
-                    if v == '#end':
-                        cont = False
-                        break
-                    else:
-                        dict_walk(d[r])
-
-        cont = True
-        question = []
+        question = random.choice(list(data['Questions']))
+        question_data = data['Questions'][question]
+        question = question.split()
+        equation = question_data['equation']
+        string_formats = question_data['string_formats']
+        working = question_data['working']
         num_of_names = 0
         num_of_nums = 0
         names = []
-
-        dict_walk(data['Words'])
         for word in question:
-            if word.strip().startswith('#name'):
-                temp = int(word[-1:])
+            if word.__contains__('#name'):
+                temp = int(re.sub(r'\D', '', word))
                 if temp > num_of_names:
                     num_of_names = temp
-            elif word.strip().startswith('#num'):
-                temp = int(word[-1:])
+            elif word.__contains__('#num'):
+                temp = int(re.sub(r'\D', '', word))
                 if temp > num_of_nums:
                     num_of_nums = temp
         for i in range(num_of_names):
@@ -517,18 +519,19 @@ elif __name__ == '__main__':
                 if not names.__contains__(temp):
                     names.append(temp)
                     break
-            question = ''.join(question).replace(f'#name{i+1}', temp)
-        num_range = question.split(';')[1]
+            for word in question:
+                question[question.index(word)] = word.replace(f'#name{i+1}',
+                                                              temp)
+            equation = ''.join(equation).replace(f'#name{i+1}', temp)
+            working = ''.join(working).replace(f'#name{i+1}', temp)
+        question = ' '.join(question)
         numbers = numeracy.generate_numbers(num_of_nums,
-                                            float(num_range.split()[0]),
-                                            float(num_range.split()[1]))
+                                            question_data['range_min'],
+                                            question_data['range_max'])
         for i in range(num_of_nums):
             question = ''.join(question).replace(f'#num{i+1}', str(numbers[i]))
-        answer_format = question.split("'")[1]
-        question = question.split('@')
-        working = question.pop(2)
-        equation = question.pop(1)
-        question = question.pop(0)
+            equation = ''.join(equation).replace(f'#num{i+1}', str(numbers[i]))
+            working = ''.join(working).replace(f'#num{i+1}', str(numbers[i]))
         equation_storage = []
         if len(equation.split()) > 1:
             numbers = []
@@ -543,44 +546,127 @@ elif __name__ == '__main__':
                     try:
                         total = getattr(numeracy, functions[0])(numbers)
                     except TypeError:
-                        total = getattr(numeracy, functions[0])(numbers[0],
-                                                                numbers[1])
+                        total = getattr(numeracy, functions[0])(
+                                              numbers[0], numbers[1])
                     equation_storage.append(total)
                     numbers = [total]
                     functions = []
-            answer = total
+            answer = round(total, 2)
         else:
             function = equation.strip()
             try:
-                answer = getattr(numeracy, function)(numbers)
+                answer = round(getattr(numeracy, function)(numbers), 2)
             except TypeError:
-                answer = getattr(numeracy, function)(numbers[0],
-                                                     numbers[1])
-
-        string_answer = answer_format.replace('answer', str(answer)
-                                              .rstrip('0').rstrip('.')).strip()
+                answer = round(getattr(numeracy, function)(numbers[0],
+                                                           numbers[1]), 2)
+        string_answer = str(round(answer, 2)).strip('0').rstrip('.').strip()
+        string_answers = []
+        for string_format in string_formats:
+            string_answers.append(string_format.replace('#answer',
+                                                        string_answer))
         for i in range(len(equation_storage)):
-            working = working.replace(f'#{i}', str(equation_storage[i])
-                                      .rstrip('0').rstrip('.'))
+            working = working.replace(f'#{i}', str(round(equation_storage[i],
+                                      2)).strip('0').rstrip('.'))
+        if answer < 0:
+            string_answer = '-' + question_data['#answer']\
+                .replace('#answer', str(abs(float(string_answer))))\
+                .strip('0').rstrip('.')
+        else:
+            string_answer = question_data['#answer'].replace('#answer',
+                                                             string_answer)
+        working = working.replace('#answer', string_answer)
+        if answer < 0:
+            temp_string_answers = []
+            for string_answer in string_answers:
+                temp_string_answers.append('-'+string_answer.replace('-', ''))
+            string_answers = temp_string_answers
 
-        working = working.replace('answer', str(answer).rstrip('0')
-                                  .rstrip('.')).strip()
-        float_answer = float(answer)
+        float_answer = round(float(answer), 2)
+        try:
+            for i in range(len(string_answers)):
+                string_answers[i] = google_translator\
+                    .translate(string_answers[i])
+        except IndexError:
+            pass
+        question = google_translator.translate(question)
+        working = google_translator.translate(working)
 
-        return question, string_answer, float_answer, working
+        return question, string_answers, float_answer, working
+
+    def translate():
+        google_translator.source = 'auto'
+        if data['Data']['language']:
+            translator.load(data['Data']['language'])
+            PyQt.QApplication.instance().installTranslator(translator)
+            google_translator.target = data['Data']['language']\
+                .lstrip('data/languages/')
+        else:
+            google_translator.target = 'english'
+        window.QuizWindow.question, \
+            window.QuizWindow.working \
+            = google_translator.translate(window.QuizWindow.question), \
+            google_translator.translate(window.QuizWindow.working)
+        for i in range(len(window.QuizWindow.string_answers)):
+            window.QuizWindow.string_answers[i] = google_translator\
+                .translate(window.QuizWindow.string_answers[i])
+        window.QuizWindow.nextQuestion = window.QuizWindow.question
+        google_translator.source = 'english'
+        Thread(target=window.QuizWindow.get_next_question, daemon=True).start()
+        window.QuizWindow.questionLabel.setText(window.QuizWindow.question)
+        window.MainWindow.setWindowTitle(
+            PyQt.QApplication.translate('MainWindow',
+                                        'NCEA Level 1 Numeracy Guide | Home'))
+        window.MainWindow.quizButton.setText(
+            PyQt.QApplication.translate('MainWindow', 'Start Quiz'))
+        window.MainWindow.settingsButton.setText(
+            PyQt.QApplication.translate('MainWindow', 'Settings'))
+
+        window.SettingsWindow.setWindowTitle(
+            PyQt.QApplication.translate(
+                'SettingsWindow', 'NCEA Level 1 Numeracy Guide | Settings'))
+        window.SettingsWindow.languageLabel.setText(
+            PyQt.QApplication.translate('SettingsWindow', 'Select Language'))
+        window.SettingsWindow.menuButton.setText(
+            PyQt.QApplication.translate('SettingsWindow', 'Main Menu'))
+
+        window.QuizWindow.setWindowTitle(
+            PyQt.QApplication.translate('QuizWindow',
+                                        'NCEA Level 1 Numeracy Guide | Quiz'))
+        window.QuizWindow.menuButton.setText(
+            PyQt.QApplication.translate('QuizWindow', 'Main Menu'))
+        window.QuizWindow.answerButton.setText(
+            PyQt.QApplication.translate('QuizWindow', 'Check Answer'))
+        window.QuizWindow.workingButton.setText(
+            PyQt.QApplication.translate('QuizWindow', 'Show Working'))
+        window.QuizWindow.nextButton.setText(
+            PyQt.QApplication.translate('QuizWindow', 'Next Question'))
+        window.QuizWindow.lineEdit.setPlaceholderText(
+            PyQt.QApplication.translate('QuizWindow', 'Enter Answer...'))
 
     if os.name == 'posix':
         os.system('clear')
     else:
         os.system('cls')
-    os.environ['QT_LOGGING_RULES'] = 'qt.qpa.*=false'
 
+    os.environ['QT_LOGGING_RULES'] = 'qt.qpa.*=false'
+    data = json.load(open('./data/data.json', 'r'))
+
+    translator = PyQtCore.QTranslator()
+    if data['Data']['language']:
+        google_translator = GoogleTranslator(source='english', target=data
+                                             ['Data']['language']
+                                             .lstrip('data/languages/'))
+    else:
+        google_translator = GoogleTranslator(source='english',
+                                             target='english')
     numeracy = Numeracy()
-    data = json.load(open('./data/keywords.json', 'r'))
 
     app = PyQt.QApplication(sys.argv)
 
     window = Window()
-    window.show()
+    with open('./data/nzqa.css', 'r') as fh:
+        window.setStyleSheet(fh.read())
+    translate()
+    Thread(target=window.show(), daemon=True).start()
 
     sys.exit(app.exec())

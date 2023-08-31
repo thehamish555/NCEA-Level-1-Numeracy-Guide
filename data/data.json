@@ -1,5 +1,5 @@
 {
-    "Names":[
+    "Names": [
         "Aaren",
         "Aarika",
         "Abagael",
@@ -4947,153 +4947,141 @@
         "Zulema",
         "Zuzana"
     ],
-	"Words": {
-		"#name1": {
-            " has": {
-                " #num1": {
-                    " oranges": {
-                        ".": {
-                            " They": {
-                                " get" : {
-                                    " #num2": {
-                                        " more": {
-                                            ",": {
-                                                " and": {
-                                                    " decide": {
-                                                        " to": {
-                                                            " split": {
-                                                                " the": {
-                                                                    " oranges": {
-                                                                        " with": {
-                                                                            " their": {
-                                                                                 " friend": {
-                                                                                    " #name2": {
-                                                                                        ",": {
-                                                                                            " how": {
-                                                                                                " many": {
-                                                                                                    " oragnes": {
-                                                                                                        " do": {
-                                                                                                            " they": {
-                                                                                                                " each": {
-                                                                                                                    " get": {
-                                                                                                                        "? @ #num1 addition #num2 division 2 @ Take #num1 and add #num2 (#num1+#num2) and divide by 2 (#0÷2) to get answer @ ; 2 25 ; ' answer '": "#end"
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-			" wants": {
-				" to": {
-					" build": {
-						" a": {
-							" house": {
-								".": {
-									" They": {
-										" have": {
-											" been": {
-												" given": {
-													" a": {
-														" #num1": {
-															"m": {
-																" by": {
-																	" #num2": {
-																		"m": {
-																			" area": {
-																				".": {
-																					" If": {
-                                                                                        " wood": {
-                                                                                            " costs": {
-                                                                                                " $": {
-                                                                                                    "#num3": {
-                                                                                                        " per": {
-                                                                                                            " meter": {
-                                                                                                                " how": {
-                                                                                                                    " much": {
-                                                                                                                        " will": {
-                                                                                                                            " the": {
-                                                                                                                                " perimeter": {
-                                                                                                                                    " cost": {
-                                                                                                                                        "? @ #num1 addition #num2 multiplication 2 multiplication #num3 @ Take #num1 and add #num2 (#num1+#num2) and multiply by 2 (#0×2) and multiply by $#num3 (#1×$#num3) to get $answer @ ; 5 25 ; ' $answer '": "#end"
-                                                                                                                                    }
-                                                                                                                                }
-                                                                                                                            }
-                                                                                                                        }
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        },
-																						" concrete": {
-																							" costs": {
-																								" $": {
-																									"#num3": {
-																										" per": {
-																											" meter": {
-																												" squared": {
-																													" how": {
-																														" much": {
-																															" will": {
-																																" the": {
-																																	" foundation": {
-																																		" cost": {
-																																			"? @ multiplication @ Multiply all the numbers together (#num1×#num2×$#num3) to get $answer @ ; 5 25 ; ' $answer '": "#end"
-																																		}
-																																	}
-																																}
-																															}
-																														}
-																													}
-																												}
-																											}
-																										}
-																									}
-																								}
-																							}
-																						}
-																					}
-																				}
-																			}
-																		}
-																	}
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+    "Questions": {
+        "#name1 has #num1 Oranges. #name1 gets #num2 more Oranges from #name2. After getting the oranges, #name1 realises they have too many oranges, and decides to evenly split the Oranges with their other friend #name3. How many Oranges does #name1 and #name3 each get?": {
+            "equation": "#num1 addition #num2 division 2",
+            "#answer": "#answer",
+            "working": "Take #num1 and add #num2 (#num1+#num2), to get the total number of oranges. Then divide by 2 (#0\u00f72), to get #answer Oranges each.",
+            "string_formats": [
+                "#answer oranges",
+                "#answer each",
+                "#answer oranges each"
+            ],
+            "range_min": 2,
+            "range_max": 25
+        },
+        "#name1 has -$#num1 in their bank. #name1 gets $#num2 from a friend, who tells them to invest it. Before adding the money to their account, #name1 invests the $#num2 from their friend, and gets back #num3% of the original amount. After putting the invested money into their bank, how much money does #name1 have in their bank now?": {
+            "equation": "#num3 division 100 multiplication #num2 addition -#num1",
+            "#answer": "$#answer",
+            "working": "Take #num3% and multiply by $#num2 (#num3%\u00d7$#num2), to get how much money the invesment returned. Then add the $#1 to -$#num1 (-$#num1+$#1), to get #answer",
+            "string_formats": [
+                "$#answer",
+                "#answer dollars"
+            ],
+            "range_min": 20,
+            "range_max": 200
+        },
+        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area. If wood costs $#num3 per meter, how much will the perimeter of the house cost?": {
+            "equation": "#num1 addition #num2 multiplication 2 multiplication #num3",
+            "#answer": "$#answer",
+            "working": "Take #num1 and add #num2 (#num1+#num2), then multiply by 2 (#0\u00d72), to get the perimeter. Then multiply by $#num3 (#1\u00d7$#num3), to get #answer.",
+            "string_formats": [
+                "$#answer",
+                "#answer dollars"
+            ],
+            "range_min": 5,
+            "range_max": 25
+        },
+        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area. If concrete costs $#num3 per square meter, how much will the foundation of the house cost?": {
+            "equation": "multiplication",
+            "#answer": "$#answer",
+            "working": "Multiply all the numbers together (#num1\u00d7#num2\u00d7$#num3), to get #answer.",
+            "string_formats": [
+                "$#answer",
+                "#answer dollars"
+            ],
+            "range_min": 5,
+            "range_max": 25
+        },
+        "#name1 needs to find out what percentage of their yearly income is required to purchase a house. If #name1 earns $#num1 per year, and the house costs $#num2. What percentage of #name1's income is used on the house": {
+            "equation": "#num2 division #num1 multiplication 100",
+            "#answer": "#answer%",
+            "working": "Divide #num2 by #num1 (#num2\u00f7#num1), then multiply by 100 (#0\u00d7100), to get #answer.",
+            "string_formats": [
+                "#answer$",
+                "#answer percent"
+            ],
+            "range_min": 60000,
+            "range_max": 200000
+        },
+        "#name1's recipe for muffins calls for a ratio of #num1 cups of flour to #num2 cups of sugar. If #name1 wants to make #num3 times the original recipe, how many cups of sugar are needed?": {
+            "equation": "#num3 multiplication #num2",
+            "#answer": "#answer",
+            "working": "Multiply #num3 by #num2 (#num3\u00d7#num2), to get #answer.",
+            "string_formats": [
+                "#answer cups"
+            ],
+            "range_min": 2,
+            "range_max": 20
+        },
+        "#name1 scored #num1 out of 75 on a test. What percentage did #name1 score?\n": {
+            "equation": "#num1 division 75 multiplication 100",
+            "#answer": "#answer%",
+            "working": "Divide #num1 by 75 (#num1\u00f775), then multiply by 100 (#0\u00d7100), to get #answer.",
+            "string_formats": [
+                "#answer%",
+                "#answer percent"
+            ],
+            "range_min": 0,
+            "range_max": 75
+        },
+        "#num1 + #num2 = ?": {
+            "equation": "addition",
+            "#answer": "#answer",
+            "working": "Add #num1 and #num2 (#num1+#num2), to get #answer.",
+            "string_formats": [],
+            "range_min": -100,
+            "range_max": 100
+        },
+        "#num1 \u00d7 #num2 = ?": {
+            "equation": "multiplication",
+            "#answer": "#answer",
+            "working": "Multiply #num1 and #num2 (#num1\u00d7#num2), to get #answer.",
+            "string_formats": [],
+            "range_min": -100,
+            "range_max": 100
+        },
+        "#num1 \u00f7 #num2 = ?": {
+            "equation": "#num1 division #num2",
+            "#answer": "#answer",
+            "working": "Divide #num1 by #num2 (#num1\u00f7#num2) to get #answer.",
+            "string_formats": [],
+            "range_min": -100,
+            "range_max": 100
+        },
+        "What is #num1% of #num2?": {
+            "equation": "#num1 division 100 multiplication #num2",
+            "#answer": "#answer",
+            "working": "Multiply #num1% by #num2 (#num1%\u00d7#num2), to get #answer.",
+            "string_formats": [],
+            "range_min": 0,
+            "range_max": 100
+        },
+        "#name1 wants to buy #num1 shirts for $#num2 each. How much money does #name1 need?": {
+            "equation": "multiplication",
+            "#answer": "$#answer",
+            "working": "Multiply #num1 by $#num2 (#num1\u00d7$#num2), to get #answer.",
+            "string_formats": [
+                "$#answer",
+                "#answer dollars"
+            ],
+            "range_min": 1,
+            "range_max": 50
+        },
+        "If #name1 runs #num1 km/h for #num2 hours, how far does #name1 travel?": {
+            "equation": "multiplication",
+            "#answer": "#answer",
+            "working": "Multiply #num1 km/h by #num2 (#num1 km/h\u00d7#num2) to get #answerkm.",
+            "string_formats": [
+                "#answer km",
+                "#answerkm",
+                "#answer kilometers"
+            ],
+            "range_min": 2,
+            "range_max": 10
+        }
+    },
+    "Data": {
+        "language": ""
+    }
 }
