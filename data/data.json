@@ -4971,7 +4971,7 @@
             "range_min": 20,
             "range_max": 200
         },
-        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area. If wood costs $#num3 per meter, how much will the perimeter of the house cost?": {
+        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area for the base of the house. If a meter plank of wood costs $#num3 per meter, how much will the base perimeter of the house cost?": {
             "equation": "#num1 addition #num2 multiplication 2 multiplication #num3",
             "#answer": "$#answer",
             "working": "Take #num1 and add #num2 (#num1+#num2), then multiply by 2 (#0\u00d72), to get the perimeter. Then multiply by $#num3 (#1\u00d7$#num3), to get #answer.",
@@ -4982,7 +4982,7 @@
             "range_min": 5,
             "range_max": 25
         },
-        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area. If concrete costs $#num3 per square meter, how much will the foundation of the house cost?": {
+        "#name1 wants to build a house. #name1 has been given a #num1m by #num2m area for the base of the house. If concrete costs $#num3 per square meter, how much will the foundation of the house cost?": {
             "equation": "multiplication",
             "#answer": "$#answer",
             "working": "Multiply all the numbers together (#num1\u00d7#num2\u00d7$#num3), to get #answer.",
@@ -4993,7 +4993,7 @@
             "range_min": 5,
             "range_max": 25
         },
-        "#name1 needs to find out what percentage of their yearly income is required to purchase a house. If #name1 earns $#num1 per year, and the house costs $#num2. What percentage of #name1's income is used on the house": {
+        "#name1 needs to find out what percentage of their net yearly income is required to purchase a house. If #name1 earns $#num1 per year, and the house costs $#num2. What percentage of #name1's income is used on the house": {
             "equation": "#num2 division #num1 multiplication 100",
             "#answer": "#answer%",
             "working": "Divide #num2 by #num1 (#num2\u00f7#num1), then multiply by 100 (#0\u00d7100), to get #answer.",

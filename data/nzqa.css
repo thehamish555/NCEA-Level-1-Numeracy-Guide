@@ -48,7 +48,7 @@ QMainWindow QLabel#answerLabel {
     padding-right: 0px;
     font-size: 18pt;
 }
-QMainWindow QLabel#imageLabel {
+QMainWindow QLabel#normalLabel {
     border: 0px;
     padding-left: 0px;
     padding-right: 0px;
