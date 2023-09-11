@@ -229,14 +229,15 @@ elif __name__ == '__main__':
             return handleButton
 
         def UiComponents(self):  # Stores the widgets that need to be displayed
-            image = PyQtGui.QPixmap('./data/media/NZQA_Logo.png')\
-                .scaledToHeight(150).scaledToHeight(150)  # NZQA Logo
-            self.imageLabel = PyQt.QLabel(self)  # Create a label for the image
-            # Define location and size on the UI (x, y, w, h)
-            self.imageLabel.setGeometry(PyQtCore.QRect(100, 50, image.width(),
-                                                       image.height()))
-            self.imageLabel.setPixmap(image)  # Show image on label
-            self.imageLabel.setObjectName('normalLabel')  # Removes the CSS
+            # For legal reasons, this has been removed
+            # image = PyQtGui.QPixmap('./data/media/NZQA_Logo.png')\
+            #     .scaledToHeight(150).scaledToHeight(150)  # NZQA Logo
+            # self.imageLabel = PyQt.QLabel(self)  # Create a label for the image
+            # # Define location and size on the UI (x, y, w, h)
+            # self.imageLabel.setGeometry(PyQtCore.QRect(100, 50, image.width(),
+            #                                            image.height()))
+            # self.imageLabel.setPixmap(image)  # Show image on label
+            # self.imageLabel.setObjectName('normalLabel')  # Removes the CSS
 
             self.quizButton = PyQt.QPushButton(self)  # Button for quiz
             # Define location and size on the UI (x, y, w, h)
